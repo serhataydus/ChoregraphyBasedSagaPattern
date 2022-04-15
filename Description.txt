@@ -1,0 +1,10 @@
+﻿Kullanılan Yapılar
+
+Saga
+Event Sourcing
+CQRS
+Retry
+Circuit Breaker
+API Composition
+RabbitMq
+MassTransit
