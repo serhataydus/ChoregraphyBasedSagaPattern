@@ -4,7 +4,7 @@
     {
         None = 0,
         Suspend = 1,
-        Success = 2,
+        Complete = 2,
         Fail = 3
     }
 }

@@ -1,5 +1,7 @@
 using MassTransit;
+using MessageBroker.Shared.Constants;
 using Microsoft.EntityFrameworkCore;
+using OrderMicroservice.WebApi.Consumer;
 using OrderMicroservice.WebApi.Data;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
@@ -13,12 +15,29 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<IOrderDbContext, OrderDbContext>(options =>
          options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")),
          ServiceLifetime.Transient);
+
 builder.Services.AddMassTransit(options =>
 {
+    options.AddConsumer<PaymentCompletedEventConsumer>();
+    options.AddConsumer<PaymentFailedEventConsumer>();
+    options.AddConsumer<StockNotReservedEventConsumer>();
     options.UsingRabbitMq((context, configuration) =>
     {
         configuration.Host(builder.Configuration.GetConnectionString("RabbitMq"));
+        configuration.ReceiveEndpoint(RabbitMqConstant.OrderPaymentCompletedEventQueueName, configureEndpoint =>
+        {
+            configureEndpoint.ConfigureConsumer<PaymentCompletedEventConsumer>(context);
+        });
+        configuration.ReceiveEndpoint(RabbitMqConstant.OrderPaymentFailedEventQueueName, configureEndpoint =>
+        {
+            configureEndpoint.ConfigureConsumer<PaymentFailedEventConsumer>(context);
+        });
+        configuration.ReceiveEndpoint(RabbitMqConstant.OrderStockNotReservedEventQueueName, configureEndpoint =>
+        {
+            configureEndpoint.ConfigureConsumer<StockNotReservedEventConsumer>(context);
+        });
     });
+
 });
 
 builder.Services.AddMassTransitHostedService();

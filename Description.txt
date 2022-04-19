@@ -8,3 +8,35 @@ Circuit Breaker
 API Composition
 RabbitMq
 MassTransit
+
+
+Order Status Enum : Suspend - Complete - Fail (reason)
+
+
+Order Service :
+	Events :
+		- PaymentCompletedEvent		(subscribe)
+		- PaymentFailedEvent		(subscribe)
+		- StockNotReservedEvent		(subscribe)
+		- OrderCreatedEvent			(publisher)
+
+				|
+				|
+				v
+
+Stock Service :
+	Events :
+		- OrderCreatedEvent			(subscribe)
+		- PaymentFailedEvent		(subscribe) : Compensable transaction mantığı ile order için düşen stoğu tekrar ekleyecek.
+		- StockReservedEvent		(send)      : StockReservedEvent sadece payment kullanacağından send  gönderebiliriz. Eğer birden çok servis dinleyecek ise örnek loglama  ozaman publisher olacak.
+		- StockNotReservedEvent		(publisher)
+
+				|
+				|
+				v
+
+Order Service :
+	Events :
+		- StockReservedEvent		(subscribe)
+		- PaymentCompletedEvent		(publisher)
+		- PaymentFailedEvent		(publisher)
