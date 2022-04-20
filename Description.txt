@@ -35,7 +35,7 @@ Stock Service :
 				|
 				v
 
-Order Service :
+Payment Service :
 	Events :
 		- StockReservedEvent		(subscribe)
 		- PaymentCompletedEvent		(publisher)
